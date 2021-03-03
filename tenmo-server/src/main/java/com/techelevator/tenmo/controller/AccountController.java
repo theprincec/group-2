@@ -4,14 +4,14 @@ import java.math.BigDecimal;
 import java.security.Principal;
 
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+//import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 
 import com.techelevator.tenmo.dao.AccountDAO;
-import com.techelevator.tenmo.dao.JDBCAccountDAO;
+//import com.techelevator.tenmo.dao.JDBCAccountDAO;
 import com.techelevator.tenmo.dao.UserDAO;
 
 //import com.techelevator.tenmo.dao.JDBCAccountDAO;
@@ -19,8 +19,6 @@ import com.techelevator.tenmo.dao.UserDAO;
 
 @RestController
 public class AccountController {
-	
-	
 	
 	private AccountDAO accountDAO;
 	private UserDAO userDAO;
@@ -30,12 +28,9 @@ public class AccountController {
 		this.userDAO = userDAO;
 	}
 		
-
-	
-	
 	@RequestMapping(path="/users", method=RequestMethod.GET)
 	public BigDecimal getBalance(Principal principal) {
-		//displayBalance(int userID);
+
 		int accountUserID = userDAO.findIdByUsername(principal.getName());
 		
 		BigDecimal accountBalance = accountDAO.displayBalance(accountUserID);
@@ -43,7 +38,13 @@ public class AccountController {
 		return accountBalance;
 	}
 	
-	
+//	@RequestMapping(path="/users/{id}", method=RequestMethod.POST)
+//	public BigDecimal getBalance(@PathVariable int id) {
+//		
+//		BigDecimal accountBalance = accountDAO.displayBalance(id);
+//		
+//		return accountBalance;
+//	}
 	
 	
 	
