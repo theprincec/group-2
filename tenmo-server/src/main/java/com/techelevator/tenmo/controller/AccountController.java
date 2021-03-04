@@ -16,6 +16,7 @@ public class AccountController {
 	private UserDAO userDAO;
 	private int accountUserID;
 	
+	
 	public AccountController(AccountDAO accountDAO, UserDAO userDAO) {
 		this.accountDAO = accountDAO;
 		this.userDAO = userDAO;
@@ -31,14 +32,14 @@ public class AccountController {
 		return accountBalance;
 	}
 	
-	@RequestMapping(path="/users/transfers", method=RequestMethod.POST)
-	public BigDecimal makeTransfer(Principal principal) {
+	@RequestMapping(path="/users/transfers/send", method=RequestMethod.POST)
+	public String makeTransfer(Principal principal, int recipientUserID, BigDecimal amount) {
 
 		accountUserID = findUserID(principal);
 		
-		BigDecimal accountBalance = accountDAO.displayBalance(accountUserID);
+		String status = accountDAO.send(accountUserID, recipientUserID, amount);
 		
-		return accountBalance;
+		return status;
 	}
 	
 	private int findUserID(Principal principal) {

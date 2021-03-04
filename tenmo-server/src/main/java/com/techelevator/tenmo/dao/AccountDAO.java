@@ -6,6 +6,6 @@ public interface AccountDAO {
 	
 	BigDecimal displayBalance(int userID);
 
-	String transfer(int senderUserID, int recipientUserID, BigDecimal amount);
+	String send(int senderUserID, int recipientUserID, BigDecimal amount);
 	
 }

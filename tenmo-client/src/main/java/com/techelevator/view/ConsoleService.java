@@ -79,4 +79,9 @@ public class ConsoleService {
 		System.out.println("Your current account balance is: " + String.valueOf(accountBalance) + "\n");
 	}
 	
+//	public int askForRecipientUserIDAndAmount() {
+//		
+//		System.out.print("Enter ID of user you are sending to (0 to cancel): ");
+//	}
+	
 }
