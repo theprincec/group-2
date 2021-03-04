@@ -3,7 +3,10 @@ package com.techelevator.tenmo.dao;
 import java.math.BigDecimal;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
+
+@Component
 public class JDBCAccountDAO implements AccountDAO {
 	
 	
@@ -18,7 +21,7 @@ public class JDBCAccountDAO implements AccountDAO {
 	public BigDecimal displayBalance(int userID) {
 		// TODO Auto-generated method stub
 		
-		String sql = "select * from accounts where user_id = ?";
+		String sql = "select balance from accounts where user_id = ?";
 		BigDecimal accountBalance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userID);
 		
 		return accountBalance;
