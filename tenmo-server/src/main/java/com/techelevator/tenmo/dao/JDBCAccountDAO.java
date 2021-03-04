@@ -10,6 +10,7 @@ import com.techelevator.tenmo.model.Transfer;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import com.techelevator.tenmo.model.Transfer;
 
 
 @Component
@@ -69,6 +70,7 @@ public class JDBCAccountDAO implements AccountDAO {
 		return transferStatusDescription;
 	}
 	
+
 	
 }
 

@@ -94,10 +94,6 @@ public class AccountController {
 //    }
 	
 	
-	
-	
-	
-	
 	private int findUserID(Principal principal) {
 		accountUserID = userDAO.findIdByUsername(principal.getName());
 		return accountUserID;
