@@ -70,10 +70,5 @@ public class JDBCAccountDAO implements AccountDAO {
 		return transferStatusDescription;
 	}
 	
-	@Override
-	public List<Transfer> listTransfer(){
-		
-	}
-	
 }
 
