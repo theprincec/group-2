@@ -47,7 +47,7 @@ public class Transfer {
 		return amount;
 	}
 	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
+		this.amount = amount;	
 	}
 	
 }
