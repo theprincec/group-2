@@ -5,7 +5,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
+
+import com.techelevator.tenmo.models.Transfer;
+import com.techelevator.tenmo.models.User;
 
 public class ConsoleService {
 
@@ -61,7 +65,7 @@ public class ConsoleService {
 	}
 
 	public Integer getUserInputInteger(String prompt) {
-		Integer result = null;
+		Integer result = 0;
 		do {
 			out.print(prompt+": ");
 			out.flush();
@@ -71,7 +75,7 @@ public class ConsoleService {
 			} catch(NumberFormatException e) {
 				out.println(System.lineSeparator() + "*** " + userInput + " is not valid ***" + System.lineSeparator());
 			}
-		} while(result == null);
+		} while(result <= 0);
 		return result;
 	}
 	
@@ -79,9 +83,52 @@ public class ConsoleService {
 		System.out.println("Your current account balance is: " + String.valueOf(accountBalance) + "\n");
 	}
 	
-//	public int askForRecipientUserIDAndAmount() {
-//		
-//		System.out.print("Enter ID of user you are sending to (0 to cancel): ");
-//	}
+	public void printUsers(int currentUserID, List<User> users) {
+		System.out.println("------------------------------");
+		System.out.println("Users");
+		System.out.printf("%-8s %-20s \n", "ID", "Name");
+		System.out.println("------------------------------");
+		for(User u : users) {
+			if(u.getId() != currentUserID) {
+				System.out.printf("%-8s %-20s \n", u.getId(), u.getUsername());
+			}
+		}
+		System.out.println("------------------------------");
+	}
+	
+	public int sendID() {
+		int selectionID = getUserInputInteger("\nEnter ID of user you are sending to (0 to cancel): ");
+		return selectionID;
+	}
+	
+	public BigDecimal getUserInputBigDecimal() {
+		BigDecimal result = new BigDecimal(0);
+		do {
+			out.print("Enter amount: ");
+			out.flush();
+			String userInput = in.nextLine();
+			try {
+				result = new BigDecimal(userInput);
+			} catch(NumberFormatException e) {
+				out.println(System.lineSeparator() + "*** " + userInput + " is not valid ***" + System.lineSeparator());
+			}
+		} while(result.doubleValue() <= 0);
+		return result;
+	}
+
+	public void printListOfTransfers(int currentUserID, List<Transfer> listOfTransfers) {
+		System.out.println("------------------------------");
+		System.out.println("Transfers");
+		System.out.printf("%-8s %-20s %-10s \n", "ID", "From/To", "Amount");
+		System.out.println("------------------------------");
+		for(Transfer t : listOfTransfers) {
+			if(t.getAccountFrom() == currentUserID) {
+				System.out.printf("%-8s %-20s \n", t.getAccountTo(), t.getAccountTo(), String.valueOf(t.getAmount()));
+			} else {
+				System.out.printf("%-8s %-20s \n", t.getAccountTo(), t.getAccountTo(), String.valueOf(t.getAmount()));
+			}
+		}
+		System.out.println("------------------------------");
+	}
 	
 }

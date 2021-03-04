@@ -42,6 +42,9 @@ public class AccountController {
 		return status;
 	}
 	
+	@RequestMapping(path="/users/transfers", method=RequestMethod.GET)
+	
+	
 	private int findUserID(Principal principal) {
 		accountUserID = userDAO.findIdByUsername(principal.getName());
 		return accountUserID;

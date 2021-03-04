@@ -1,5 +1,7 @@
 package com.techelevator.tenmo;
 
+import java.math.BigDecimal;
+
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
@@ -52,15 +54,15 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		while(true) {
 			String choice = (String)console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if(MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
-				console.printAccountBalance(accountService.getBalanceForCurrentUser());
+				viewBalance();
 			} else if(MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-				// View Transfer History
+				viewTransferHistory();
 			} else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-				// View Pending Requests
+				viewPendingRequests();
 			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
-				// Send Bucks
+				sendBucks();
 			} else if(MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
-				// Request Bucks
+				requestBucks();
 			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
 			} else {
@@ -70,7 +72,29 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 	}
 
+	private void viewBalance() {
+		console.printAccountBalance(accountService.getBalanceForCurrentUser());
+	}
 	
+	private void viewTransferHistory() {
+		console.printListOfTransfers(accountService.getListOfTransfers());
+	}
+	
+	private void viewPendingRequests() {
+		
+	}
+	
+	private void sendBucks() {
+		//print list of all other users
+		console.printUsers(accountService.getUserID(), accountService.getListOfUsers());
+		int selectedRecipient = console.sendID();
+		BigDecimal sendAmount = console.getUserInputBigDecimal();
+		//accountService.sendTransfer(selectedRecipient, sendAmount);
+	}
+	
+	private void requestBucks() {
+		
+	}
 
 	private void exitProgram() {
 		System.exit(0);

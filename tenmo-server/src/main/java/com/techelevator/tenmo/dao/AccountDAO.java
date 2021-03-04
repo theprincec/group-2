@@ -2,7 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import java.math.BigDecimal;
 import java.util.List;
-import com.techelevator.tenmo.model.Transfers;
+import com.techelevator.tenmo.model.Transfer;
 
 public interface AccountDAO {
 	
@@ -10,6 +10,6 @@ public interface AccountDAO {
 
 	String send(int senderUserID, int recipientUserID, BigDecimal amount);
 
-	List<Transfers> listTransfers();
+	List<Transfer> listTransfer();
 	
 }
