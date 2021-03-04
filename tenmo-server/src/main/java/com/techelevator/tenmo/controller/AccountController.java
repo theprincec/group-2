@@ -3,19 +3,11 @@ package com.techelevator.tenmo.controller;
 import java.math.BigDecimal;
 import java.security.Principal;
 
-import org.springframework.web.bind.annotation.PathVariable;
-//import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-
 import com.techelevator.tenmo.dao.AccountDAO;
-//import com.techelevator.tenmo.dao.JDBCAccountDAO;
 import com.techelevator.tenmo.dao.UserDAO;
-
-//import com.techelevator.tenmo.dao.JDBCAccountDAO;
-
 
 @RestController
 public class AccountController {
@@ -37,16 +29,5 @@ public class AccountController {
 		
 		return accountBalance;
 	}
-	
-//	@RequestMapping(path="/users/{id}", method=RequestMethod.POST)
-//	public BigDecimal getBalance(@PathVariable int id) {
-//		
-//		BigDecimal accountBalance = accountDAO.displayBalance(id);
-//		
-//		return accountBalance;
-//	}
-	
-	
-	
 
 }

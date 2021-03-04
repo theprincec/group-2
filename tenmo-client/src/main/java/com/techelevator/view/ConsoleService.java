@@ -76,7 +76,7 @@ public class ConsoleService {
 	}
 	
 	public void printAccountBalance(BigDecimal accountBalance) {
-		System.out.println("\nYour current account balance is: " + String.valueOf(accountBalance) + "\n");
+		System.out.println("Your current account balance is: " + String.valueOf(accountBalance) + "\n");
 	}
 	
 }

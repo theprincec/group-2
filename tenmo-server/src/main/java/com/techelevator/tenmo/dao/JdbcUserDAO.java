@@ -32,7 +32,7 @@ public class JdbcUserDAO implements UserDAO {
             return id;
         } else {
             return -1;
-    }
+        }
     }
 
     @Override

@@ -26,7 +26,7 @@ public class AccountService {
 		this.currentUser = currentUser;
 	}
 
-	public BigDecimal getBalanceForCurrentUser(int id) {
+	public BigDecimal getBalanceForCurrentUser() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(currentUser.getToken());
 		HttpEntity entity = new HttpEntity(headers);
