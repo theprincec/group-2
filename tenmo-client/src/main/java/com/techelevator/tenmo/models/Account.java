@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 public class Account {
 	
-	
 	private BigDecimal accountBalance; 
 	private int accountID;
 	private int UserID;

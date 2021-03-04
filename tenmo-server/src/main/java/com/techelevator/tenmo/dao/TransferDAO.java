@@ -9,5 +9,5 @@ public interface TransferDAO {
 	List<Transfer> getCompletedTransferList(int accountID);
 	List<Transfer> getPendingTransferList(int accountID);
 	List<Transfer> getFullTransferList(int accountID);
-	
+
 }
