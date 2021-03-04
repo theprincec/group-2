@@ -34,11 +34,15 @@ public class JDBCAccountDAO implements AccountDAO {
 			String sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
 			jdbcTemplate.update(sql, currentBalance.subtract(amount), senderUserID);
 			//add to recipient
-			sql = "UPDATE account SET balance = ? WHERE user_id = ?";
+			sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
 			jdbcTemplate.update(sql, recipientBalance.add(amount), recipientUserID);
+			//get currentAccountID
+			sql = "SELECT account_id FROM accounts"
+			//get recipientAccountID
+			
 			//insert into transfers
 			sql = "INSERT INTO transfers VALUES (DEFAULT, 2, 2, ?, ?, ?)";
-			//jdbcTemplate.update(sql, currentUserID, )
+			//jdbcTemplate.update(sql, currentAccountID, recipientAccountID, amount)
 			return null;  
 		}
 	}
