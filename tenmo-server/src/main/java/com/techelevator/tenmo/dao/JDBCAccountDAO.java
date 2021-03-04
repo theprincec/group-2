@@ -65,7 +65,6 @@ public class JDBCAccountDAO implements AccountDAO {
 	}
 	
 	@Override
-	@Override
 	public List<Transactions> listTransactions(){
 		
 	}
