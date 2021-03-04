@@ -11,5 +11,7 @@ public interface AccountDAO {
 	String send(int senderUserID, int recipientUserID, BigDecimal amount);
 
 	List<Transfer> listTransfer();
+
+	List<Transfer> listTransfers();
 	
 }

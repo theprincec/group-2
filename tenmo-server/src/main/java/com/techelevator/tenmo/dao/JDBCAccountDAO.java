@@ -4,9 +4,14 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+
+
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import com.techelevator.tenmo.model.Transfer;
+
 
 @Component
 public class JDBCAccountDAO implements AccountDAO {
@@ -21,7 +26,7 @@ public class JDBCAccountDAO implements AccountDAO {
 	@Override
 	public BigDecimal displayBalance(int userID) {
 		
-		String sql = "SELECT balance FROM accounts WHERE user_id = ?";
+		String sql = "select balance from accounts where user_id = ?";
 		BigDecimal accountBalance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userID);
 		
 		return accountBalance;
