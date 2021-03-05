@@ -99,7 +99,7 @@ public class ConsoleService {
 	}
 	
 	public int sendID() {
-		int selectionID = getUserInputInteger("\nEnter ID of user you are sending to (0 to cancel): ");
+		int selectionID = getUserInputInteger("\nEnter ID of user you are sending to (0 to cancel)");
 		return selectionID;
 	}
 	

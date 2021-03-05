@@ -1,13 +1,16 @@
 package com.techelevator.tenmo.dao;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.techelevator.tenmo.model.Transfer;
 
 public interface TransferDAO {
 	
-	List<Transfer> getCompletedTransferList(int accountID);
-	List<Transfer> getPendingTransferList(int accountID);
-	List<Transfer> getFullTransferList(int accountID);
+	String addTransfer(long senderUserID, long recipientUserID, BigDecimal amount);
+	
+	List<Transfer> getCompletedTransferList(long accountID);
+	List<Transfer> getPendingTransferList(long accountID);
+	List<Transfer> getFullTransferList(long accountID);
 
 }

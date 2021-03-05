@@ -15,6 +15,7 @@ public class JDBCTransferDAO implements TransferDAO {
 
 	
 	private JdbcTemplate jdbcTemplate;
+	private JDBCAccountDAO jdbcaccountDAO;
 	
 	public JDBCTransferDAO(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -22,19 +23,19 @@ public class JDBCTransferDAO implements TransferDAO {
 	
 
 	@Override
-	public List<Transfer> getFullTransferList(int accountID) {
+	public List<Transfer> getFullTransferList(long accountID) {
 		// TODO Auto-generated method stub
 		return getAllTransfers(accountID);
 	}
 	
 	@Override
-	public List<Transfer> getCompletedTransferList(int accountID) {
+	public List<Transfer> getCompletedTransferList(long accountID) {
 		// TODO Auto-generated method stub
 		return getCompletedTransfers(accountID);
 	}
 
 	@Override
-	public List<Transfer> getPendingTransferList(int accountID) {
+	public List<Transfer> getPendingTransferList(long accountID) {
 		// TODO Auto-generated method stub
 		return getPendingTransfers(accountID);
 	}
@@ -42,7 +43,7 @@ public class JDBCTransferDAO implements TransferDAO {
 	
 	
 	
-	private List<Transfer> getAllTransfers(int accountID)  {
+	private List<Transfer> getAllTransfers(long accountID)  {
 		String sql = "select transfer_id, transfer_type_desc, transfer_status_desc, account_from, account_to, amount from transfers "
 				+ "JOIN transfer_types ON transfer_types.transfer_type_id = transfers.transfer_type_id "
 				+ "JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
@@ -62,7 +63,7 @@ public class JDBCTransferDAO implements TransferDAO {
 	}
 	
 	
-	private List<Transfer> getPendingTransfers(int accountID)  {
+	private List<Transfer> getPendingTransfers(long accountID)  {
 		String sql = "select * from transfers " + 
 				"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
 				"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id"
@@ -81,7 +82,7 @@ public class JDBCTransferDAO implements TransferDAO {
 		return transfersList;
 	}
 	
-	private List<Transfer> getCompletedTransfers(int accountID)  {
+	private List<Transfer> getCompletedTransfers(long accountID)  {
 		String sql = "select * from transfers " + 
 				"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
 				"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id"
@@ -111,6 +112,44 @@ public class JDBCTransferDAO implements TransferDAO {
 
 		return transfer;
 	}
-	
 
+	@Override
+	public String addTransfer(long senderUserID, long recipientUserID, BigDecimal amount) {
+		//make sure sender has enough balance
+		
+		BigDecimal currentBalance = jdbcaccountDAO.getBalance(senderUserID);
+		BigDecimal recipientBalance = jdbcaccountDAO.getBalance(recipientUserID);
+		int transferStatusID = 0;
+		
+		//get currentAccountID
+		String sql = "SELECT account_id FROM accounts WHERE user_id = ?";
+		int senderAccountID = jdbcTemplate.queryForObject(sql, Integer.class, senderUserID);
+		
+		//get recipientAccountID
+		sql = "SELECT account_id FROM accounts WHERE user_id = ?";
+		int recipientAccountID = jdbcTemplate.queryForObject(sql, Integer.class, senderUserID);
+		
+		if(currentBalance.doubleValue() >= amount.doubleValue()) {
+			//subtract from sender
+			sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+			jdbcTemplate.update(sql, currentBalance.subtract(amount), senderUserID);
+			//add to recipient
+			sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+			jdbcTemplate.update(sql, recipientBalance.add(amount), recipientUserID);
+			
+			//insert into transfers
+			sql = "INSERT INTO transfers VALUES (DEFAULT, 2, 2, ?, ?, ?)";
+			jdbcTemplate.update(sql, senderAccountID, recipientAccountID, amount);
+			transferStatusID = 2;
+		} else {
+			sql = "INSERT INTO transfers VALUES (DEFAULT, 2, 3, ?, ?, ?)";
+			jdbcTemplate.update(sql, senderAccountID, recipientAccountID, amount);
+			transferStatusID = 3;
+		}
+		
+		sql = "SELECT transfer_status_desc FROM transfer_statuses WHERE transfer_status_id = ?";
+		String transferStatusDescription = jdbcTemplate.queryForObject(sql, String.class, transferStatusID);
+		return transferStatusDescription;
+	}
+	
 }

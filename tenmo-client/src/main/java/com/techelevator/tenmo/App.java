@@ -1,7 +1,7 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
-
+import com.techelevator.tenmo.models.Account;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.Transfer;
 import com.techelevator.tenmo.models.UserCredentials;
@@ -31,6 +31,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private AuthenticationService authenticationService;
     private AccountService accountService;
     private Transfer transfer;
+    private Account account;
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
@@ -79,7 +80,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 	
 	private void viewTransferHistory() {
-		console.printListOfTransfers(accountService.getUserID(), accountService.getListOfTransfers());
+		console.printListOfTransfers(currentUser.getUser().getId(), accountService.getListOfTransfers());
 	}
 	
 	private void viewPendingRequests() {
@@ -93,9 +94,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		BigDecimal sendAmount = console.getUserInputBigDecimal();
 		Transfer transfer = new Transfer();
 		//need to implement get accountID in accountService
-		transfer.setAccountFrom(accountService.getUserID());
-		transfer.setAccountTo(selectedRecipient);
+		transfer.setTransferID(5000);
+		transfer.setTransferTypeDesription("send");
+		transfer.setTransferStatusDescription("approved");
+		transfer.setAccountFrom(currentUser.getUser().getId()+1000);
+		transfer.setAccountTo(selectedRecipient+1000);
 		transfer.setAmount(sendAmount);
+		
 		accountService.sendTransfer(transfer);
 	}
 	

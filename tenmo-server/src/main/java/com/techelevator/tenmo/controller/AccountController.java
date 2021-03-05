@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,7 +42,7 @@ public class AccountController {
 
 		accountUserID = findUserID(principal);
 		
-		BigDecimal accountBalance = accountDAO.displayBalance(accountUserID);
+		BigDecimal accountBalance = accountDAO.getBalance(accountUserID);
 		
 		return accountBalance;
 	}
@@ -58,29 +60,34 @@ public class AccountController {
 	}
 	
 	@RequestMapping(path="/users/transfers/send", method=RequestMethod.POST)
-	public String makeTransfer(Principal principal,@RequestBody long recipientUserID, @RequestBody BigDecimal amount) {
+	public String makeTransfer(Principal principal, @Valid @RequestBody Transfer transfer) {
 
 		accountUserID = findUserID(principal);
-		long accountId = accountDAO.getAccountId(accountUserID);
+		long userId = transfer.getAccountFrom();
+		long accountId = accountDAO.getAccountId(userId);
 		
-		long recipientAccountId = accountDAO.getAccountId(recipientUserID);
+		long recipientId = transfer.getAccountFrom();
+		long recipientAccountId = accountDAO.getAccountId(recipientId);
 		
-		String status = accountDAO.send(accountId, recipientAccountId, amount);
+		String status = transferDAO.addTransfer(accountId, recipientAccountId, transfer.getAmount());
 		
 		return status;
 	}
+	
 	
 	@RequestMapping(path="/users/transfers", method=RequestMethod.GET)
 	public List<Transfer> getTransferList(Principal principal/*, @RequestParam(required=false) int status*/) {
 
 		List<Transfer> transferList = new ArrayList<Transfer>();
 		
+		accountUserID = findUserID(principal);
+		long accountId = accountDAO.getAccountId(accountUserID);
 //		if (status == 1) {
 //			transferList = transferDAO.getPendingTransferList(findUserID(principal));
 //		} else if (status == 2) {
 //			transferList = transferDAO.getCompletedTransferList(findUserID(principal));
 //		} else {
-			transferList = transferDAO.getFullTransferList(findUserID(principal));
+			transferList = transferDAO.getFullTransferList(accountId);
 		//}
 		
 		return transferList;
