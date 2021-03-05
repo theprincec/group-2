@@ -3,17 +3,19 @@ package com.techelevator.tenmo.controller;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.techelevator.tenmo.dao.AccountDAO;
 import com.techelevator.tenmo.dao.TransferDAO;
 import com.techelevator.tenmo.dao.UserDAO;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 
 @RestController
 public class AccountController {
@@ -31,7 +33,7 @@ public class AccountController {
 		this.transferDAO = transferDAO;
 	}
 	
-	@RequestMapping(path="/users", method=RequestMethod.GET)
+	@RequestMapping(path="/users/balance", method=RequestMethod.GET)
 	public BigDecimal getBalance(Principal principal) {
 
 		accountUserID = findUserID(principal);
@@ -39,6 +41,16 @@ public class AccountController {
 		BigDecimal accountBalance = accountDAO.displayBalance(accountUserID);
 		
 		return accountBalance;
+	}
+	
+	@RequestMapping(path="/users", method=RequestMethod.GET)
+	public Map<Long, String> getAllUsers() {
+		List<User> fullList = userDAO.findAll();
+		Map<Long, String> usersByIDAndName = new HashMap<Long, String>();
+		for(User u: fullList) {
+			usersByIDAndName.put(u.getId(), u.getUsername());
+		}
+		return usersByIDAndName;
 	}
 	
 	@RequestMapping(path="/users/transfers/send", method=RequestMethod.POST)
@@ -52,17 +64,19 @@ public class AccountController {
 	}
 	
 	@RequestMapping(path="/users/transfers", method=RequestMethod.GET)
-	public List<Transfer> getTransferList(Principal principal, @RequestParam(required=false) int status) {
+	public List<Transfer> getTransferList(Principal principal/*, @RequestParam(required=false) int status*/) {
 
 		List<Transfer> transferList = new ArrayList<Transfer>();
 		
-		if (status == 1) {
-			transferList = transferDAO.getPendingTransferList(findUserID(principal));
-		} else if (status == 2) {
-			transferList = transferDAO.getCompletedTransferList(findUserID(principal));
-		} else {
+//		if (status == 1) {
+//			transferList = transferDAO.getPendingTransferList(findUserID(principal));
+//		} else if (status == 2) {
+//			transferList = transferDAO.getCompletedTransferList(findUserID(principal));
+//		} else {
+			
 			transferList = transferDAO.getFullTransferList(findUserID(principal));
-		}
+			
+		//}
 		
 		return transferList;
 	}

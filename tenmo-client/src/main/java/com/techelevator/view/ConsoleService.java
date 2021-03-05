@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import com.techelevator.tenmo.models.Transfer;
@@ -83,14 +85,14 @@ public class ConsoleService {
 		System.out.println("Your current account balance is: " + String.valueOf(accountBalance) + "\n");
 	}
 	
-	public void printUsers(int currentUserID, List<User> users) {
+	public void printUsers(String currentUsername, List<String> usernames) {
 		System.out.println("------------------------------");
 		System.out.println("Users");
 		System.out.printf("%-8s %-20s \n", "ID", "Name");
 		System.out.println("------------------------------");
-		for(User u : users) {
-			if(u.getId() != currentUserID) {
-				System.out.printf("%-8s %-20s \n", u.getId(), u.getUsername());
+		for(String listItem: usernames) {
+			if(listItem.equals(currentUsername)) {
+				System.out.printf("%-8s %-20s \n", listItem);
 			}
 		}
 		System.out.println("------------------------------");
@@ -119,16 +121,20 @@ public class ConsoleService {
 	public void printListOfTransfers(int currentUserID, List<Transfer> listOfTransfers) {
 		System.out.println("------------------------------");
 		System.out.println("Transfers");
-		System.out.printf("%-8s %-20s %-10s \n", "ID", "From/To", "Amount");
+		System.out.printf("%-8s %-20s %-10s \n", "Account #", "From/To", "Amount");
 		System.out.println("------------------------------");
 		for(Transfer t : listOfTransfers) {
+			//gets account #, want to get user ID
 			if(t.getAccountFrom() == currentUserID) {
-				System.out.printf("%-8s %-20s \n", t.getAccountTo(), t.getAccountTo(), String.valueOf(t.getAmount()));
-			} else {
-				System.out.printf("%-8s %-20s \n", t.getAccountTo(), t.getAccountTo(), String.valueOf(t.getAmount()));
+				System.out.printf("%-8s To: %-20s $%-10d \n", t.getAccountTo(), t.getAccountTo(), String.valueOf(t.getAmount()));
+			} else if (t.getAccountTo() == currentUserID) {
+				System.out.printf("%-8s From: %-20s $%-10d \n", t.getAccountFrom(), t.getAccountFrom(), String.valueOf(t.getAmount()));
 			}
 		}
 		System.out.println("------------------------------");
 	}
+
+
+
 	
 }

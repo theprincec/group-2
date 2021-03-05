@@ -6,9 +6,11 @@ import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
 import com.techelevator.tenmo.model.Transfer;
 
+@Component
 public class JDBCTransferDAO implements TransferDAO {
 
 	
@@ -41,9 +43,9 @@ public class JDBCTransferDAO implements TransferDAO {
 	
 	
 	private List<Transfer> getAllTransfers(int accountID)  {
-		String sql = "select * from transfers " + 
-				"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
-				"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id"
+		String sql = "select transfer_id, transfer_type_desc, transfer_status_desc, account_from, account_to, amount from transfers "
+				+ "JOIN transfer_types ON transfer_types.transfer_type_id = transfers.transfer_type_id "
+				+ "JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
 				+ "Where transfers.account_from = ?";
 		
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountID);
