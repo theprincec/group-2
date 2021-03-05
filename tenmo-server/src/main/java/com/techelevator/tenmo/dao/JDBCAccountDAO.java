@@ -24,7 +24,7 @@ public class JDBCAccountDAO implements AccountDAO {
 	
 
 	@Override
-	public BigDecimal displayBalance(int userID) {
+	public BigDecimal displayBalance(long userID) {
 		
 		String sql = "select balance from accounts where user_id = ?";
 		BigDecimal accountBalance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userID);
@@ -33,7 +33,7 @@ public class JDBCAccountDAO implements AccountDAO {
 	}
 	
 	@Override
-	public String send(int senderUserID, int recipientUserID, BigDecimal amount) {
+	public String send(long senderUserID, long recipientUserID, BigDecimal amount) {
 		//make sure sender has enough balance
 		BigDecimal currentBalance = displayBalance(senderUserID);
 		BigDecimal recipientBalance = displayBalance(recipientUserID);
@@ -69,6 +69,18 @@ public class JDBCAccountDAO implements AccountDAO {
 		String transferStatusDescription = jdbcTemplate.queryForObject(sql, String.class, transferStatusID);
 		return transferStatusDescription;
 	}
+	
+	
+	@Override
+	public long getAccountId(long userID) {
+		
+		String sql = "select account_id from accounts " + 
+				"where user_id = ?;";
+		long accountId = jdbcTemplate.queryForObject(sql, Integer.class, userID);
+		
+		return accountId;
+	}
+	
 	
 }
 

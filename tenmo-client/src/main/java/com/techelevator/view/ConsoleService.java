@@ -85,14 +85,14 @@ public class ConsoleService {
 		System.out.println("Your current account balance is: " + String.valueOf(accountBalance) + "\n");
 	}
 	
-	public void printUsers(String currentUsername, List<String> usernames) {
+	public void printUsers(int currentUserId, List<User> usernames) {
 		System.out.println("------------------------------");
 		System.out.println("Users");
 		System.out.printf("%-8s %-20s \n", "ID", "Name");
 		System.out.println("------------------------------");
-		for(String listItem: usernames) {
-			if(listItem.equals(currentUsername)) {
-				System.out.printf("%-8s %-20s \n", listItem);
+		for(User listItem: usernames) {
+			if(listItem.getId() != currentUserId) {
+				System.out.printf("%-8s %-20s \n", listItem.getId(), listItem.getUsername());
 			}
 		}
 		System.out.println("------------------------------");

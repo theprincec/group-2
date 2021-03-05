@@ -6,8 +6,10 @@ import com.techelevator.tenmo.model.Transfer;
 
 public interface AccountDAO {
 	
-	BigDecimal displayBalance(int userID);
+	BigDecimal displayBalance(long userID);
 
-	String send(int senderUserID, int recipientUserID, BigDecimal amount);
+	String send(long senderUserID, long recipientUserID, BigDecimal amount);
+
+	long getAccountId(long userID);
 
 }

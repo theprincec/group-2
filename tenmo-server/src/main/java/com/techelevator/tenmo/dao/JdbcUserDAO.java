@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.APIUser;
 import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,6 +47,28 @@ public class JdbcUserDAO implements UserDAO {
         }
         return users;
     }
+    
+    
+    
+    @Override
+    public List<APIUser> convertToAPIUsers() {
+    	
+    	List<User> users = findAll();
+    	List<APIUser> apiUsers = new ArrayList<APIUser>();
+    	
+    	for (User user : users) {
+    		APIUser apiUser = new APIUser();
+    		apiUser.setId(user.getId());
+    		apiUser.setUsername(user.getUsername());
+    		
+    		apiUsers.add(apiUser);
+    	}
+    	
+    	return apiUsers;
+    }
+    
+    
+    
 
     @Override
     public User findByUsername(String username) throws UsernameNotFoundException {

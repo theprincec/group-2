@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techelevator.tenmo.dao.AccountDAO;
 import com.techelevator.tenmo.dao.TransferDAO;
 import com.techelevator.tenmo.dao.UserDAO;
+import com.techelevator.tenmo.model.APIUser;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
@@ -44,21 +46,26 @@ public class AccountController {
 	}
 	
 	@RequestMapping(path="/users", method=RequestMethod.GET)
-	public Map<Long, String> getAllUsers() {
-		List<User> fullList = userDAO.findAll();
-		Map<Long, String> usersByIDAndName = new HashMap<Long, String>();
-		for(User u: fullList) {
-			usersByIDAndName.put(u.getId(), u.getUsername());
-		}
-		return usersByIDAndName;
+	public List<APIUser> getAllUsers() {
+		List<APIUser> apiUsers = userDAO.convertToAPIUsers();
+		
+//		List<User> fullList = userDAO.findAll();
+//		Map<Long, String> usersByIDAndName = new HashMap<Long, String>();
+//		for(User u: fullList) {
+//			usersByIDAndName.put(u.getId(), u.getUsername());
+//		}
+		return apiUsers;
 	}
 	
 	@RequestMapping(path="/users/transfers/send", method=RequestMethod.POST)
-	public String makeTransfer(Principal principal, int recipientUserID, BigDecimal amount) {
+	public String makeTransfer(Principal principal,@RequestBody long recipientUserID, @RequestBody BigDecimal amount) {
 
 		accountUserID = findUserID(principal);
+		long accountId = accountDAO.getAccountId(accountUserID);
 		
-		String status = accountDAO.send(accountUserID, recipientUserID, amount);
+		long recipientAccountId = accountDAO.getAccountId(recipientUserID);
+		
+		String status = accountDAO.send(accountId, recipientAccountId, amount);
 		
 		return status;
 	}
@@ -73,9 +80,7 @@ public class AccountController {
 //		} else if (status == 2) {
 //			transferList = transferDAO.getCompletedTransferList(findUserID(principal));
 //		} else {
-			
 			transferList = transferDAO.getFullTransferList(findUserID(principal));
-			
 		//}
 		
 		return transferList;
@@ -84,28 +89,7 @@ public class AccountController {
 	
 //	@RequestMapping(path = "/hotels/filter", method = RequestMethod.GET)
 //    public List<Hotel> filterByStateAndCity(@RequestParam String state, @RequestParam(required = false) String city) {
-//
-//        List<Hotel> filteredHotels = new ArrayList<>();
-//        List<Hotel> hotels = list();
-//
-//        // return hotels that match state
-//        for (Hotel hotel : hotels) {
-//
-//            // if city was passed we don't care about the state filter
-//            if (city != null) {
-//                if (hotel.getAddress().getCity().toLowerCase().equals(city.toLowerCase())) {
-//                    filteredHotels.add(hotel);
-//                }
-//            } else {
-//                if (hotel.getAddress().getState().toLowerCase().equals(state.toLowerCase())) {
-//                    filteredHotels.add(hotel);
-//                }
-//
-//            }
-//        }
-//
-//        return filteredHotels;
-//    }
+
 	
 	
 	private int findUserID(Principal principal) {

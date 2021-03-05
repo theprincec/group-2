@@ -6,8 +6,8 @@ public class Account {
 	
 	
 	private BigDecimal accountBalance; 
-	private int accountID;
-	private int UserID;
+	private long accountID;
+	private long UserID;
 	
 	
 	public BigDecimal getAccountBalance() {
@@ -16,13 +16,13 @@ public class Account {
 	public void setAccountBalance(BigDecimal accountBalance) {
 		this.accountBalance = accountBalance;
 	}
-	public int getAccountID() {
+	public long getAccountID() {
 		return accountID;
 	}
 //	public void setAccountID(int accountID) {
 //		this.accountID = accountID;
 //	}
-	public int getUserID() {
+	public long getUserID() {
 		return UserID;
 	}
 //	public void setUserID(int userID) {

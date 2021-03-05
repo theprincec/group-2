@@ -11,6 +11,8 @@ public class User {
    private String password;
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
+   //private Account accountInfo;
+   private long accountId;
 
    public User() { }
 
@@ -67,6 +69,16 @@ public class User {
          this.authorities.add(new Authority("ROLE_" + role));
       }
    }
+   
+   public long getAccountId() {
+	      return accountId;
+	   }
+
+	   public void setAccountId(int accountId) {
+	      this.accountId = accountId;
+	   }
+   
+   
 
    @Override
    public boolean equals(Object o) {

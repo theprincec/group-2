@@ -88,7 +88,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	
 	private void sendBucks() {
 		//print list of all other users
-		console.printUsers(currentUser.getUser().getUsername(), accountService.getListOfUsers());
+		console.printUsers(currentUser.getUser().getId(), accountService.getListOfUsers());
 		int selectedRecipient = console.sendID();
 		BigDecimal sendAmount = console.getUserInputBigDecimal();
 		Transfer transfer = new Transfer();

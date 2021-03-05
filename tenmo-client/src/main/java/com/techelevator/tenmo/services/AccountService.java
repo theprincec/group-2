@@ -63,14 +63,14 @@ public class AccountService {
 	
 	
 	//deserializing list of string users
-	public List<String> getListOfUsers(){
+	public List<User> getListOfUsers(){
 		HttpHeaders headers = new HttpHeaders();
 		//headers.setBearerAuth(currentUser.getToken());
 		HttpEntity entity = new HttpEntity(headers);
 
-		String[] stringResult = restTemplate.getForObject(baseUrl + "users/", String[].class);
+		User[] userResult = restTemplate.getForObject(baseUrl + "users/", User[].class);
 		
-		return Arrays.asList(stringResult);
+		return Arrays.asList(userResult);
 	}
 	
 	public List<Transfer> getListOfTransfers(){
