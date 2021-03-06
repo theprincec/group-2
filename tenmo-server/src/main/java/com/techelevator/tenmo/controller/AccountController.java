@@ -60,18 +60,22 @@ public class AccountController {
 	}
 	
 	@RequestMapping(path="/users/transfers/send", method=RequestMethod.POST)
-	public String makeTransfer(Principal principal, @Valid @RequestBody Transfer transfer) {
+	public void makeTransfer(Principal principal, @Valid @RequestBody Transfer transfer ) {
 
-		accountUserID = findUserID(principal);
-		long userId = transfer.getAccountFrom();
-		long accountId = accountDAO.getAccountId(userId);
+		//get user account ID
+//		accountUserID = findUserID(principal);
+//		long userId = transfer.getAccountFrom();
+//		long accountId = accountDAO.getAccountId(userId);
+//		
+		//get recipient account ID
+//		long recipientId = transfer.getAccountFrom();
+//		long recipientAccountId = accountDAO.getAccountId(recipientId);
+//		
+		//String status = transferDAO.addTransfer(accountId, recipientAccountId, transfer.getAmount());
 		
-		long recipientId = transfer.getAccountFrom();
-		long recipientAccountId = accountDAO.getAccountId(recipientId);
+		transferDAO.addTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
 		
-		String status = transferDAO.addTransfer(accountId, recipientAccountId, transfer.getAmount());
-		
-		return status;
+		//return status;
 	}
 	
 	

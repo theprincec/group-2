@@ -10,4 +10,6 @@ public interface AccountDAO {
 
 	long getAccountId(long userID);
 
+	long getUserIdFromAccount(long accountId);
+
 }

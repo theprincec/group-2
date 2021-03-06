@@ -10,6 +10,8 @@ public class Transfer {
 	private int accountFrom;
 	private int accountTo;
 	private BigDecimal amount;
+	private String username;
+
 	
 	
 	public String getTransferTypeDesription() {
@@ -49,5 +51,16 @@ public class Transfer {
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;	
 	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	
+	
+	
+	
 	
 }

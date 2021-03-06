@@ -37,10 +37,21 @@ public class JDBCAccountDAO implements AccountDAO {
 	public long getAccountId(long userID) {
 		
 		String sql = "select account_id from accounts " + 
-				"where user_id = ?;";
+				"where user_id = ?";
 		long accountId = jdbcTemplate.queryForObject(sql, Integer.class, userID);
 		
 		return accountId;
+	}
+	
+	
+	
+	@Override
+	public long getUserIdFromAccount(long accountId) {
+		String sql = "select user_id from accounts " + 
+				"where account_id = ?";
+		long userId = jdbcTemplate.queryForObject(sql, Integer.class, accountId);
+		
+		return userId;
 	}
 	
 	

@@ -59,13 +59,14 @@ public class AccountService {
 		return Arrays.asList(transfers);
 	}
 
-	public Transfer sendTransfer(Transfer transfer) {
+	public void sendTransfer(Transfer transfer) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(currentUser.getToken());
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<Transfer> entity = new HttpEntity<Transfer>(transfer, headers);
 		
 		Transfer sendTransfer = restTemplate.exchange(baseUrl + "users/transfers/send", HttpMethod.POST, entity, Transfer.class).getBody();
+
 		
 		return sendTransfer;
 	}
