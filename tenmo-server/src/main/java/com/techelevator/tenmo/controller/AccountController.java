@@ -28,7 +28,7 @@ public class AccountController {
 	private UserDAO userDAO;
 	private TransferDAO transferDAO;
 	
-	private int accountUserID;
+	private long accountUserID;
 	
 	
 	public AccountController(AccountDAO accountDAO, UserDAO userDAO, TransferDAO transferDAO) {
@@ -91,7 +91,7 @@ public class AccountController {
 //		} else if (status == 2) {
 //			transferList = transferDAO.getCompletedTransferList(findUserID(principal));
 //		} else {
-			transferList = transferDAO.getFullTransferList(accountId);
+			transferList = transferDAO.getAllTransfers(accountId);
 		//}
 		
 		return transferList;
@@ -103,7 +103,7 @@ public class AccountController {
 
 	
 	
-	private int findUserID(Principal principal) {
+	private long findUserID(Principal principal) {
 		accountUserID = userDAO.findIdByUsername(principal.getName());
 		return accountUserID;
 	}

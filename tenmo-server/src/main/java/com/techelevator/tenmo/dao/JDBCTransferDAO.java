@@ -42,8 +42,8 @@ public class JDBCTransferDAO implements TransferDAO {
 	
 	
 	
-	
-	private List<Transfer> getAllTransfers(long accountID)  {
+	@Override
+	public List<Transfer> getAllTransfers(long accountID)  {
 		String sql = "select transfer_id, transfer_type_desc, transfer_status_desc, account_from, account_to, transfer.getAmount() from transfers "
 				+ "JOIN transfer_types ON transfer_types.transfer_type_id = transfers.transfer_type_id "
 				+ "JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
@@ -54,7 +54,8 @@ public class JDBCTransferDAO implements TransferDAO {
 		List<Transfer> transfersList = new ArrayList<Transfer>();
 		
 		while (results.next()) {
-			Transfer transfer = mapRowToTransfer(results);
+			Transfer transfer = new Transfer();
+			transfer = mapRowToTransfer(results);
 			transfersList.add(transfer);
 		}
 		
@@ -62,7 +63,30 @@ public class JDBCTransferDAO implements TransferDAO {
 		return transfersList;
 	}
 	
+//	@Override
+//	public List<Book> getListByUsername(String name) {
+//		
+//		List<Book> books = new ArrayList<Book>();
+//		
+//		String sql = "SELECT book.id, title, author, description, cover_url, isbn, type, date_added, username " + 
+//				"FROM book " + 
+//				"JOIN book_user ON book_user.book_id = book.id " + 
+//				"JOIN users ON book_user.user_id = users.user_id " + 
+//				"WHERE username = ?";
+//		
+//		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, name);
+//		
+//		while (results.next()) {
+//			Book book = mapRowToBook(results);
+//			book.setGenres( getGenresForBook(book.getId()) );
+//			books.add(book);
+//		}
+//		
+//		return books;
+//	}
 	
+	
+
 	private List<Transfer> getPendingTransfers(long accountID)  {
 		String sql = "select * from transfers " + 
 				"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
@@ -78,7 +102,6 @@ public class JDBCTransferDAO implements TransferDAO {
 			transfersList.add(transfer);
 		}
 		
-		
 		return transfersList;
 	}
 	
@@ -93,7 +116,8 @@ public class JDBCTransferDAO implements TransferDAO {
 		List<Transfer> transfersList = new ArrayList<Transfer>();
 		
 		while (results.next()) {
-			Transfer transfer = mapRowToTransfer(results);
+			Transfer transfer = new Transfer();
+			transfer = mapRowToTransfer(results);
 			transfersList.add(transfer);
 		}
 		return transfersList;
@@ -116,6 +140,7 @@ public class JDBCTransferDAO implements TransferDAO {
 		
 		@Override
 		public Transfer addTransfer(long senderUserID, long recipientUserID, BigDecimal amount) {
+			
 			//make sure sender has enough balance
 			
 			BigDecimal currentBalance = jdbcaccountDAO.getBalance(senderUserID);
@@ -131,12 +156,13 @@ public class JDBCTransferDAO implements TransferDAO {
 			int recipientAccountID = jdbcTemplate.queryForObject(sql, Integer.class, senderUserID);
 			
 			
-			sql = "select * from transfers " + 
-					"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
-					"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id"
-					+ "Where transfers.transfer_status_id = 2 and transfers.account_from = ?";
-			
-			SqlRowSet results = jdbcTemplate.queryForRowSet(sql, senderAccountID);
+//			//no mapping
+//			sql = "select * from transfers " + 
+//					"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
+//					"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
+//					+ "Where transfers.transfer_status_id = 2 and transfers.account_from = ?";
+//			
+//			SqlRowSet results = jdbcTemplate.queryForRowSet(sql, senderAccountID);
 			
 			
 			if(currentBalance.doubleValue() >= amount.doubleValue()) {
@@ -154,9 +180,9 @@ public class JDBCTransferDAO implements TransferDAO {
 			} 
 
 			
-			
-			sql = "SELECT transfer_status_desc FROM transfer_statuses WHERE transfer_status_id = ?";
-			String transferStatusDescription = jdbcTemplate.queryForObject(sql, String.class, transferStatusID);
+			//transfer status description
+//			sql = "SELECT transfer_status_desc FROM transfer_statuses WHERE transfer_status_id = ?";
+//			String transferStatusDescription = jdbcTemplate.queryForObject(sql, String.class, transferStatusID);
 			
 			Transfer newTransfer= new Transfer();
 			
@@ -174,7 +200,7 @@ public class JDBCTransferDAO implements TransferDAO {
 					"WHERE account_id = ?";
 			SqlRowSet accountFromRow = jdbcTemplate.queryForRowSet(gettingAccountFromDetails, senderAccountID);
 			accountFromRow.next();
-			newTransfer.setAccountFrom(accountFromRow.getInt("user_id"));
+			//newTransfer.setAccountFrom(accountFromRow.getInt("user_id"));
 			newTransfer.setUsername(accountFromRow.getString("username"));
 			
 			// getting account to details to set into transfer object. account id to get user name & user id

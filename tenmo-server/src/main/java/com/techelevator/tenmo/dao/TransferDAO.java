@@ -10,7 +10,8 @@ public interface TransferDAO {
 	List<Transfer> getCompletedTransferList(long accountID);
 	List<Transfer> getPendingTransferList(long accountID);
 	List<Transfer> getFullTransferList(long accountID);
-
+	List<Transfer> getAllTransfers(long accountID);
+	
 	Transfer addTransfer(long senderUserID, long recipientUserID, BigDecimal amount);
 
 }
