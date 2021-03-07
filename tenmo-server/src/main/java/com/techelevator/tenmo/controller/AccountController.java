@@ -28,7 +28,7 @@ public class AccountController {
 	private UserDAO userDAO;
 	private TransferDAO transferDAO;
 	
-	private int accountUserID;
+	private int userID;
 	
 	
 	public AccountController(AccountDAO accountDAO, UserDAO userDAO, TransferDAO transferDAO) {
@@ -40,52 +40,33 @@ public class AccountController {
 	@RequestMapping(path="/users/balance", method=RequestMethod.GET)
 	public BigDecimal getBalance(Principal principal) {
 
-		accountUserID = findUserID(principal);
+		userID = findUserID(principal);
 		
-		BigDecimal accountBalance = accountDAO.getBalance(accountUserID);
+		BigDecimal accountBalance = accountDAO.getBalance(userID);
 		
 		return accountBalance;
+	}
+	
+	@RequestMapping(path="/users/account", method=RequestMethod.GET)
+	public long getAccountNumber(@RequestParam(required=true) long id) {
+		long accountID = accountDAO.getAccountId(id);
+		return accountID;
 	}
 	
 	@RequestMapping(path="/users", method=RequestMethod.GET)
 	public List<APIUser> getAllUsers() {
 		List<APIUser> apiUsers = userDAO.convertToAPIUsers();
-		
-//		List<User> fullList = userDAO.findAll();
-//		Map<Long, String> usersByIDAndName = new HashMap<Long, String>();
-//		for(User u: fullList) {
-//			usersByIDAndName.put(u.getId(), u.getUsername());
-//		}
 		return apiUsers;
 	}
-	
-	@RequestMapping(path="/users/transfers/send", method=RequestMethod.POST)
-	public void makeTransfer(Principal principal, @Valid @RequestBody Transfer transfer ) {
-
-		//get user account ID
-//		accountUserID = findUserID(principal);
-//		long userId = transfer.getAccountFrom();
-//		long accountId = accountDAO.getAccountId(userId);
-//		
-		//get recipient account ID
-//		long recipientId = transfer.getAccountFrom();
-//		long recipientAccountId = accountDAO.getAccountId(recipientId);
-//		
-		//String status = transferDAO.addTransfer(accountId, recipientAccountId, transfer.getAmount());
 		
-		transferDAO.addTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
-		
-		//return status;
-	}
-	
 	
 	@RequestMapping(path="/users/transfers", method=RequestMethod.GET)
 	public List<Transfer> getTransferList(Principal principal/*, @RequestParam(required=false) int status*/) {
 
 		List<Transfer> transferList = new ArrayList<Transfer>();
 		
-		accountUserID = findUserID(principal);
-		long accountId = accountDAO.getAccountId(accountUserID);
+		userID = findUserID(principal);
+		long accountId = accountDAO.getAccountId(userID);
 //		if (status == 1) {
 //			transferList = transferDAO.getPendingTransferList(findUserID(principal));
 //		} else if (status == 2) {
@@ -104,8 +85,8 @@ public class AccountController {
 	
 	
 	private int findUserID(Principal principal) {
-		accountUserID = userDAO.findIdByUsername(principal.getName());
-		return accountUserID;
+		userID = userDAO.findIdByUsername(principal.getName());
+		return userID;
 	}
 	
 	

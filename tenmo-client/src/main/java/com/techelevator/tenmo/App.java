@@ -80,7 +80,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 	
 	private void viewTransferHistory() {
-		console.printListOfTransfers(currentUser.getUser().getId(), accountService.getListOfTransfers());
+		console.printListOfTransfers(accountService.getAccountNumberForUser(currentUser.getUser().getId()), accountService.getListOfTransfers());
 	}
 	
 	private void viewPendingRequests() {
@@ -90,18 +90,30 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private void sendBucks() {
 		//print list of all other users
 		console.printUsers(currentUser.getUser().getId(), accountService.getListOfUsers());
-		int selectedRecipient = console.sendID();
+		int selectedRecipient = -1;
+		while(true) {
+		selectedRecipient = console.sendID(currentUser.getUser().getId(), accountService.getListOfUsers());
+			if(selectedRecipient == 0) {
+				return;
+			} else {
+				break;
+			}
+		}
 		BigDecimal sendAmount = console.getUserInputBigDecimal();
 		Transfer transfer = new Transfer();
 		//need to implement get accountID in accountService
-		transfer.setTransferID(5000);
 		transfer.setTransferTypeDesription("send");
 		transfer.setTransferStatusDescription("approved");
-		transfer.setAccountFrom(currentUser.getUser().getId()+1000);
-		transfer.setAccountTo(selectedRecipient+1000);
+		transfer.setAccountFrom((int) accountService.getAccountNumberForUser(currentUser.getUser().getId()));
+		transfer.setAccountTo((int) accountService.getAccountNumberForUser(selectedRecipient));
 		transfer.setAmount(sendAmount);
 		
-		accountService.sendTransfer(transfer);
+		transfer = accountService.sendTransfer(transfer);
+		if(transfer != null) {
+			console.printSuccessMessage();
+		} else {
+			console.printInsufficientFundsMessage();
+		}
 	}
 	
 	private void requestBucks() {

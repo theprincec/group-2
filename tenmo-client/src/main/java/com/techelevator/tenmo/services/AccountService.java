@@ -38,6 +38,16 @@ public class AccountService {
 		return balance;
 	}
 	
+	public long getAccountNumberForUser(long userID) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(currentUser.getToken());
+		HttpEntity entity = new HttpEntity(headers);
+		
+		long accountID = restTemplate.exchange(baseUrl + "users/account?id=" + userID, HttpMethod.GET, entity, long.class).getBody();
+		
+		return accountID;
+	}
+	
 	//deserializing list of string users
 	public List<User> getListOfUsers(){
 		HttpHeaders headers = new HttpHeaders();
@@ -59,7 +69,7 @@ public class AccountService {
 		return Arrays.asList(transfers);
 	}
 
-	public void sendTransfer(Transfer transfer) {
+	public Transfer sendTransfer(Transfer transfer) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(currentUser.getToken());
 		headers.setContentType(MediaType.APPLICATION_JSON);

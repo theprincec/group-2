@@ -67,7 +67,7 @@ public class ConsoleService {
 	}
 
 	public Integer getUserInputInteger(String prompt) {
-		Integer result = 0;
+		Integer result = -1;
 		do {
 			out.print(prompt+": ");
 			out.flush();
@@ -77,7 +77,7 @@ public class ConsoleService {
 			} catch(NumberFormatException e) {
 				out.println(System.lineSeparator() + "*** " + userInput + " is not valid ***" + System.lineSeparator());
 			}
-		} while(result <= 0);
+		} while(result < 0);
 		return result;
 	}
 	
@@ -98,9 +98,21 @@ public class ConsoleService {
 		System.out.println("------------------------------");
 	}
 	
-	public int sendID() {
-		int selectionID = getUserInputInteger("\nEnter ID of user you are sending to (0 to cancel)");
-		return selectionID;
+	public int sendID(int currentUserId, List<User> users) {
+		int selectionID = 0;
+		while(true) {
+			selectionID = getUserInputInteger("\nEnter ID of user you are sending to (0 to cancel)");
+			if(selectionID == 0) {
+				return selectionID;
+			}
+			for(User u: users) {
+				if(selectionID == u.getId() && selectionID != currentUserId) {
+					return selectionID;
+				}
+			}
+		}
+
+
 	}
 	
 	public BigDecimal getUserInputBigDecimal() {
@@ -118,23 +130,28 @@ public class ConsoleService {
 		return result;
 	}
 
-	public void printListOfTransfers(int currentUserID, List<Transfer> listOfTransfers) {
-		System.out.println("------------------------------");
+	public void printListOfTransfers(long currentUserAccountID, List<Transfer> listOfTransfers) {
+		System.out.println("---------------------------------------------------------");
 		System.out.println("Transfers");
-		System.out.printf("%-8s %-20s %-10s \n", "Account #", "From/To", "Amount");
-		System.out.println("------------------------------");
+		System.out.printf("%-10s %-25s %14s \n", "Account #", "From/To", "Amount");
+		System.out.println("---------------------------------------------------------");
 		for(Transfer t : listOfTransfers) {
 			//gets account #, want to get user ID
-			if(t.getAccountFrom() == currentUserID) {
-				System.out.printf("%-8s To: %-20s $%-10d \n", t.getAccountTo(), t.getAccountTo(), String.valueOf(t.getAmount()));
-			} else if (t.getAccountTo() == currentUserID) {
-				System.out.printf("%-8s From: %-20s $%-10d \n", t.getAccountFrom(), t.getAccountFrom(), String.valueOf(t.getAmount()));
+			if(t.getAccountFrom() == currentUserAccountID) {
+				System.out.printf("%-10s To: %-25s   $%10s \n", t.getAccountTo(), t.getUsernameTo(), String.valueOf(t.getAmount()));
+			} else if (t.getAccountTo() == currentUserAccountID) {
+				System.out.printf("%-10s From: %-25s $%10s \n", t.getAccountFrom(), t.getUsernameFrom(), String.valueOf(t.getAmount()));
 			}
 		}
-		System.out.println("------------------------------");
+		System.out.println("---------------------------------------------------------");
 	}
 
+	public void printSuccessMessage() {
+		System.out.println("\nTransaction completed successfully.");
+	}
 
-
+	public void printInsufficientFundsMessage() {
+		System.out.println("\nError, insufficient funds.");
+	}
 	
 }
