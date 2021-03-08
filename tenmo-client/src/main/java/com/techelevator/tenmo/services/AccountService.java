@@ -78,7 +78,7 @@ public class AccountService {
 		Transfer sendTransfer = restTemplate.exchange(baseUrl + "users/transfers/send", HttpMethod.POST, entity, Transfer.class).getBody();
 
 		
-		//return sendTransfer;
+		return sendTransfer;
 	}
 	
 	
