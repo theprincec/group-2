@@ -1,6 +1,8 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
+import java.util.List;
+
 import com.techelevator.tenmo.models.Account;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.Transfer;
@@ -80,7 +82,23 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 	
 	private void viewTransferHistory() {
-		console.printListOfTransfers(accountService.getAccountNumberForUser(currentUser.getUser().getId()), accountService.getListOfTransfers());
+		List<Transfer> validTransfers = console.printListOfTransfers(accountService.getAccountNumberForUser(currentUser.getUser().getId()), accountService.getListOfTransfers());
+		Transfer selectedTransfer = null;
+		while(true) {
+			selectedTransfer = console.getTransferID(validTransfers);
+			if(selectedTransfer == null) {
+				return;
+			} else {
+				break;
+			}
+		}
+		if(selectedTransfer.getUsernameFrom() == null) {
+			selectedTransfer.setUsernameFrom(currentUser.getUser().getUsername());
+		}
+		if(selectedTransfer.getUsernameTo() == null) {
+			selectedTransfer.setUsernameTo(currentUser.getUser().getUsername());
+		}
+		console.printTransferDetails(selectedTransfer);
 	}
 	
 	private void viewPendingRequests() {
@@ -92,7 +110,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		console.printUsers(currentUser.getUser().getId(), accountService.getListOfUsers());
 		int selectedRecipient = -1;
 		while(true) {
-		selectedRecipient = console.sendID(currentUser.getUser().getId(), accountService.getListOfUsers());
+			selectedRecipient = console.sendID(currentUser.getUser().getId(), accountService.getListOfUsers());
 			if(selectedRecipient == 0) {
 				return;
 			} else {

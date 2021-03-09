@@ -74,6 +74,7 @@ public class JDBCTransferDAO implements TransferDAO {
 		while (results.next()) {
 			Transfer transfer = mapRowToTransfer(results);
 			transfer.setUsernameFrom(results.getString("username_from"));
+			
 			transfersList.add(transfer);
 		}
 		

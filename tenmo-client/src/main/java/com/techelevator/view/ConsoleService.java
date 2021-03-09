@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -82,15 +83,15 @@ public class ConsoleService {
 	}
 	
 	public void printAccountBalance(BigDecimal accountBalance) {
-		System.out.println("Your current account balance is: " + String.valueOf(accountBalance) + "\n");
+		System.out.println("Your current account balance is: $" + String.valueOf(accountBalance) + "\n");
 	}
 	
-	public void printUsers(int currentUserId, List<User> usernames) {
+	public void printUsers(int currentUserId, List<User> users) {
 		System.out.println("------------------------------");
 		System.out.println("Users");
 		System.out.printf("%-8s %-20s \n", "ID", "Name");
 		System.out.println("------------------------------");
-		for(User listItem: usernames) {
+		for(User listItem: users) {
 			if(listItem.getId() != currentUserId) {
 				System.out.printf("%-8s %-20s \n", listItem.getId(), listItem.getUsername());
 			}
@@ -111,8 +112,6 @@ public class ConsoleService {
 				}
 			}
 		}
-
-
 	}
 	
 	public BigDecimal getUserInputBigDecimal() {
@@ -130,20 +129,24 @@ public class ConsoleService {
 		return result;
 	}
 
-	public void printListOfTransfers(long currentUserAccountID, List<Transfer> listOfTransfers) {
+	public List<Transfer> printListOfTransfers(long currentUserAccountID, List<Transfer> listOfTransfers) {
+		List<Transfer> validTransfers = new ArrayList<Transfer>();
 		System.out.println("---------------------------------------------------------");
 		System.out.println("Transfers");
-		System.out.printf("%-10s %-25s %14s \n", "Account #", "From/To", "Amount");
+		System.out.printf("%-10s %-25s %14s \n", "ID", "From/To", "Amount");
 		System.out.println("---------------------------------------------------------");
 		for(Transfer t : listOfTransfers) {
 			//gets account #, want to get user ID
 			if(t.getAccountFrom() == currentUserAccountID) {
-				System.out.printf("%-10s To: %-25s   $%10s \n", t.getAccountTo(), t.getUsernameTo(), String.valueOf(t.getAmount()));
+				validTransfers.add(t);
+				System.out.printf("%-10s To: %-25s   $%10s \n", t.getTransferID(), t.getUsernameTo(), String.valueOf(t.getAmount()));
 			} else if (t.getAccountTo() == currentUserAccountID) {
-				System.out.printf("%-10s From: %-25s $%10s \n", t.getAccountFrom(), t.getUsernameFrom(), String.valueOf(t.getAmount()));
+				validTransfers.add(t);
+				System.out.printf("%-10s From: %-25s $%10s \n", t.getTransferID(), t.getUsernameFrom(), String.valueOf(t.getAmount()));
 			}
 		}
 		System.out.println("---------------------------------------------------------");
+		return validTransfers;
 	}
 
 	public void printSuccessMessage() {
@@ -152,6 +155,34 @@ public class ConsoleService {
 
 	public void printInsufficientFundsMessage() {
 		System.out.println("\nError, insufficient funds.");
+	}
+
+	public Transfer getTransferID(List<Transfer> validTransfers) {
+		Transfer transfer = null;
+		int selectionID = 0;
+		while(true) {
+			selectionID = getUserInputInteger("\nEnter transfer ID to view details (0 to cancel)");
+			if(selectionID == 0) {
+				return transfer;
+			}
+			for(Transfer t: validTransfers) {
+				if(selectionID == t.getTransferID()) {
+					return t;
+				}
+			}
+		}
+	}
+
+	public void printTransferDetails(Transfer t) {
+		System.out.println("\n---------------------------------------------------------");
+		System.out.println("Transfer Details");
+		System.out.println("---------------------------------------------------------");
+		System.out.println("Id: " + t.getTransferID());
+		System.out.println("From: " + t.getUsernameFrom());
+		System.out.println("To: " + t.getUsernameTo());
+		System.out.println("Type: " + t.getTransferTypeDesription());
+		System.out.println("Status: " + t.getTransferStatusDescription());
+		System.out.println("Amount: $" + t.getAmount());
 	}
 	
 }
