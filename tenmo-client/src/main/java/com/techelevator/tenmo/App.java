@@ -27,13 +27,15 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
+    private static final boolean SEND = true;
+    private static final boolean REJECT = false;
+
 	
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private AccountService accountService;
-    private Transfer transfer;
-    private Account account;
+
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
@@ -70,6 +72,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				requestBucks();
 			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
+				accountService = new AccountService(API_BASE_URL, currentUser);
 			} else {
 				// the only other option on the main menu is to exit
 				exitProgram();
@@ -81,11 +84,38 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		console.printAccountBalance(accountService.getBalanceForCurrentUser());
 	}
 	
+	private void sendBucks() {
+		console.printUsers(currentUser.getUser().getId(), accountService.getListOfUsers());
+		int otherID = -1;
+		while(true) {
+			otherID = console.sendID(currentUser.getUser().getId(), accountService.getListOfUsers(), "Enter ID of user you are sending to (0 to cancel)");
+			if(otherID == 0) {
+				return;
+			} else {
+				break;
+			}
+		}
+		BigDecimal amount = console.getUserInputBigDecimal();
+		
+		Transfer transfer = new Transfer();
+		transfer.setAccountFrom((int) accountService.getAccountNumberForUser(currentUser.getUser().getId()));
+		transfer.setAccountTo((int) accountService.getAccountNumberForUser(otherID));
+		transfer.setAmount(amount);
+		
+		transfer = accountService.sendTransfer(transfer);
+		
+		if(transfer != null) {
+			console.printSuccessMessage();
+		} else {
+			console.printInsufficientFundsMessage();
+		}
+	}
+	
 	private void viewTransferHistory() {
-		List<Transfer> validTransfers = console.printListOfTransfers(accountService.getAccountNumberForUser(currentUser.getUser().getId()), accountService.getListOfTransfers());
+		List<Transfer> validTransfers = console.printListOfSendTransfers(accountService.getAccountNumberForUser(currentUser.getUser().getId()), accountService.getListOfTransfers());
 		Transfer selectedTransfer = null;
 		while(true) {
-			selectedTransfer = console.getTransferID(validTransfers);
+			selectedTransfer = console.askForTransferID(validTransfers, "Enter transfer ID to view details (0 to cancel)");
 			if(selectedTransfer == null) {
 				return;
 			} else {
@@ -101,43 +131,76 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		console.printTransferDetails(selectedTransfer);
 	}
 	
-	private void viewPendingRequests() {
-		
-	}
-	
-	private void sendBucks() {
-		//print list of all other users
+	private void requestBucks() {
 		console.printUsers(currentUser.getUser().getId(), accountService.getListOfUsers());
-		int selectedRecipient = -1;
+		int otherID = -1;
 		while(true) {
-			selectedRecipient = console.sendID(currentUser.getUser().getId(), accountService.getListOfUsers());
-			if(selectedRecipient == 0) {
+			otherID = console.sendID(currentUser.getUser().getId(), accountService.getListOfUsers(), "Enter ID of user you are requesting from (0 to cancel)");
+			if(otherID == 0) {
 				return;
 			} else {
 				break;
 			}
 		}
-		BigDecimal sendAmount = console.getUserInputBigDecimal();
-		Transfer transfer = new Transfer();
-		//need to implement get accountID in accountService
-		transfer.setTransferTypeDesription("send");
-		transfer.setTransferStatusDescription("approved");
-		transfer.setAccountFrom((int) accountService.getAccountNumberForUser(currentUser.getUser().getId()));
-		transfer.setAccountTo((int) accountService.getAccountNumberForUser(selectedRecipient));
-		transfer.setAmount(sendAmount);
+		BigDecimal amount = console.getUserInputBigDecimal();
 		
-		transfer = accountService.sendTransfer(transfer);
-		if(transfer != null) {
-			console.printSuccessMessage();
-		} else {
-			console.printInsufficientFundsMessage();
+		Transfer transfer = new Transfer();
+		transfer.setAccountFrom((int) accountService.getAccountNumberForUser(otherID));
+		transfer.setAccountTo((int) accountService.getAccountNumberForUser(currentUser.getUser().getId()));
+		transfer.setAmount(amount);
+		
+		transfer = accountService.requestTransfer(transfer);
+	}
+	
+	private void viewPendingRequests() {
+		List<Transfer> requestedTransfers = console.printListOfRequestedTransfers(accountService.getAccountNumberForUser(currentUser.getUser().getId()), accountService.getListOfTransfers());
+		Transfer selectedTransfer = null;
+		while(true) {
+			selectedTransfer = console.askForTransferID(requestedTransfers, "Enter transfer ID to approve/reject (0 to cancel)");
+			if(selectedTransfer == null) {
+				return;
+			} else {
+				break;
+			}
+		}
+		int choice = -1;
+		while(!(choice >= 0 && choice <= 2)) {
+			choice = console.askRequestChoice();
+		}
+		if(choice == 0) {
+			return;
+		} else if (choice == 1) {
+			BigDecimal currentBalance = accountService.getBalanceForCurrentUser();
+			BigDecimal transferAmount = selectedTransfer.getAmount();
+			
+
+			if(currentBalance.doubleValue() >= transferAmount.doubleValue()) {
+				accountService.updateTransfer(selectedTransfer, SEND);
+				console.printSuccessMessage();
+			} else {
+				console.printInsufficientFundsMessage();
+			}
+			
+		} else if (choice == 2) {
+			accountService.updateTransfer(selectedTransfer, REJECT);
+		}
+	}
+
+	private void login() {
+		System.out.println("Please log in");
+		currentUser = null;
+		while (currentUser == null) //will keep looping until user is logged in
+		{
+			UserCredentials credentials = collectUserCredentials();
+		    try {
+				currentUser = authenticationService.login(credentials);
+			} catch (AuthenticationServiceException e) {
+				System.out.println("LOGIN ERROR: "+ e.getMessage());
+				System.out.println("Please attempt to login again.");
+			}
 		}
 	}
 	
-	private void requestBucks() {
-		
-	}
-
 	private void exitProgram() {
 		System.exit(0);
 	}
@@ -175,21 +238,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				System.out.println("Please attempt to register again.");
             }
         }
-	}
-
-	private void login() {
-		System.out.println("Please log in");
-		currentUser = null;
-		while (currentUser == null) //will keep looping until user is logged in
-		{
-			UserCredentials credentials = collectUserCredentials();
-		    try {
-				currentUser = authenticationService.login(credentials);
-			} catch (AuthenticationServiceException e) {
-				System.out.println("LOGIN ERROR: "+e.getMessage());
-				System.out.println("Please attempt to login again.");
-			}
-		}
 	}
 	
 	private UserCredentials collectUserCredentials() {

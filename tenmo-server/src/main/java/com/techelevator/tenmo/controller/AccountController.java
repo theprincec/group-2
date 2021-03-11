@@ -60,7 +60,7 @@ public class AccountController {
 		
 	
 	@RequestMapping(path="/users/transfers", method=RequestMethod.GET)
-	public List<Transfer> getTransferList(Principal principal/*, @RequestParam(required=false) int status*/) {
+	public List<Transfer> getTransferList(Principal principal) {
 
 		List<Transfer> transferList = new ArrayList<Transfer>();
 		
@@ -76,12 +76,6 @@ public class AccountController {
 		
 		return transferList;
 	}
-	
-	
-//	@RequestMapping(path = "/hotels/filter", method = RequestMethod.GET)
-//    public List<Hotel> filterByStateAndCity(@RequestParam String state, @RequestParam(required = false) String city) {
-
-	
 	
 	private int findUserID(Principal principal) {
 		userID = userDAO.findIdByUsername(principal.getName());

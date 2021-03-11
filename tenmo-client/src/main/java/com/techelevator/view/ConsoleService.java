@@ -99,10 +99,10 @@ public class ConsoleService {
 		System.out.println("------------------------------");
 	}
 	
-	public int sendID(int currentUserId, List<User> users) {
+	public int sendID(int currentUserId, List<User> users, String message) {
 		int selectionID = 0;
 		while(true) {
-			selectionID = getUserInputInteger("\nEnter ID of user you are sending to (0 to cancel)");
+			selectionID = getUserInputInteger("\n" + message);
 			if(selectionID == 0) {
 				return selectionID;
 			}
@@ -129,18 +129,17 @@ public class ConsoleService {
 		return result;
 	}
 
-	public List<Transfer> printListOfTransfers(long currentUserAccountID, List<Transfer> listOfTransfers) {
+	public List<Transfer> printListOfSendTransfers(long currentUserAccountID, List<Transfer> listOfTransfers) {
 		List<Transfer> validTransfers = new ArrayList<Transfer>();
 		System.out.println("---------------------------------------------------------");
 		System.out.println("Transfers");
 		System.out.printf("%-10s %-25s %14s \n", "ID", "From/To", "Amount");
 		System.out.println("---------------------------------------------------------");
 		for(Transfer t : listOfTransfers) {
-			//gets account #, want to get user ID
-			if(t.getAccountFrom() == currentUserAccountID) {
+			if(t.getAccountFrom() == currentUserAccountID && t.getTransferStatusDescription().equalsIgnoreCase("approved")) {
 				validTransfers.add(t);
 				System.out.printf("%-10s To: %-25s   $%10s \n", t.getTransferID(), t.getUsernameTo(), String.valueOf(t.getAmount()));
-			} else if (t.getAccountTo() == currentUserAccountID) {
+			} else if (t.getAccountTo() == currentUserAccountID && t.getTransferStatusDescription().equalsIgnoreCase("approved")) {
 				validTransfers.add(t);
 				System.out.printf("%-10s From: %-25s $%10s \n", t.getTransferID(), t.getUsernameFrom(), String.valueOf(t.getAmount()));
 			}
@@ -152,16 +151,20 @@ public class ConsoleService {
 	public void printSuccessMessage() {
 		System.out.println("\nTransaction completed successfully.");
 	}
+	
+	public void printRequestMessage() {
+		System.out.println("\nRequest sent successfully.");
+	}
 
 	public void printInsufficientFundsMessage() {
 		System.out.println("\nError, insufficient funds.");
 	}
 
-	public Transfer getTransferID(List<Transfer> validTransfers) {
+	public Transfer askForTransferID(List<Transfer> validTransfers, String message) {
 		Transfer transfer = null;
 		int selectionID = 0;
 		while(true) {
-			selectionID = getUserInputInteger("\nEnter transfer ID to view details (0 to cancel)");
+			selectionID = getUserInputInteger("\n" + message);
 			if(selectionID == 0) {
 				return transfer;
 			}
@@ -183,6 +186,32 @@ public class ConsoleService {
 		System.out.println("Type: " + t.getTransferTypeDesription());
 		System.out.println("Status: " + t.getTransferStatusDescription());
 		System.out.println("Amount: $" + t.getAmount());
+	}
+
+	public List<Transfer> printListOfRequestedTransfers(long currentUserAccountID, List<Transfer> listOfTransfers) {
+		List<Transfer> validTransfers = new ArrayList<Transfer>();
+		System.out.println("---------------------------------------------------------");
+		System.out.println("Transfers");
+		System.out.printf("%-10s %-25s %14s \n", "ID", "From/To", "Amount");
+		System.out.println("---------------------------------------------------------");
+		for(Transfer t : listOfTransfers) {
+			if(t.getAccountFrom() == currentUserAccountID && t.getTransferStatusDescription().equalsIgnoreCase("pending")) {
+				validTransfers.add(t);
+				System.out.printf("%-10s To: %-25s   $%10s \n", t.getTransferID(), t.getUsernameTo(), String.valueOf(t.getAmount()));
+			}
+		}
+		System.out.println("---------------------------------------------------------");
+		return validTransfers;
+	}
+	
+	public int askRequestChoice() {
+		int choice = -1;
+		choice = getUserInputInteger("1: Approve\r\n"
+				+ "2: Reject\r\n"
+				+ "0: Don't approve or reject\r\n"
+				+ "---------\r\n"
+				+ "Please choose an option");
+		return choice;
 	}
 	
 }

@@ -12,5 +12,8 @@ public interface TransferDAO {
 	List<Transfer> getFullTransferList(long accountID);
 	
 	Transfer addTransfer(long senderUserID, long recipientUserID, BigDecimal amount);
+	Transfer addTransferRequest(int accountTo, int accountFrom, BigDecimal amount);
+	Transfer updateTransferApprove(int transferID, int accountFrom, int accountTo, BigDecimal amount);
+	Transfer updateTransferReject(int transferID);
 
 }

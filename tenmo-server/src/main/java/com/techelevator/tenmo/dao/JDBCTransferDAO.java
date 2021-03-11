@@ -133,7 +133,6 @@ public class JDBCTransferDAO implements TransferDAO {
 		BigDecimal currentBalance = accountDAO.getBalance(senderUserID);
 		BigDecimal recipientBalance = accountDAO.getBalance(recipientUserID);
 		
-		int transferStatusID = 0;
 		int transferID = 0;
 		
 		//make sure sender has enough balance
@@ -146,17 +145,31 @@ public class JDBCTransferDAO implements TransferDAO {
 			jdbcTemplate.update(sql, recipientBalance.add(amount), recipientUserID);
 			
 			//insert into transfers
-			sql = "INSERT INTO transfers VALUES (DEFAULT, 2, 2, ?, ?, ?) Returning transfer_id";
+			sql = "INSERT INTO transfers VALUES (DEFAULT, 2, 2, ?, ?, ?) RETURNING transfer_id";
 			transferID = jdbcTemplate.queryForObject(sql, Integer.class, senderAccountID, recipientAccountID, amount);
 		} else {
 			return null;
 		}
 
-		sql = "SELECT transfer_id, transfer_type_desc, transfer_status_desc, account_from, account_to, amount FROM transfers "
-				+ "JOIN transfer_types ON transfer_types.transfer_type_id = transfers.transfer_type_id "
-				+ "JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
-				+ "WHERE transfer_id = ?";
-		SqlRowSet accountToRow = jdbcTemplate.queryForRowSet(sql, transferID);
+		SqlRowSet accountToRow = selectTransferByID(transferID);
+		accountToRow.next();
+
+		Transfer newTransfer = mapRowToTransfer(accountToRow);
+		
+		return newTransfer;
+		
+	}
+	
+	@Override
+	public Transfer addTransferRequest(int recipientAccountID, int senderAccountID, BigDecimal amount) {
+		
+		int transferID = 0;
+		
+		//insert into transfers
+		String sql = "INSERT INTO transfers VALUES (DEFAULT, 1, 1, ?, ?, ?) RETURNING transfer_id";
+		transferID = jdbcTemplate.queryForObject(sql, Integer.class, senderAccountID, recipientAccountID, amount);
+
+		SqlRowSet accountToRow = selectTransferByID(transferID);
 		accountToRow.next();
 
 		Transfer newTransfer = mapRowToTransfer(accountToRow);
@@ -165,7 +178,68 @@ public class JDBCTransferDAO implements TransferDAO {
 		
 	}
 
+
+	@Override
+	public Transfer updateTransferApprove(int transferID, int senderAccountID, int recipientAccountID, BigDecimal amount) {
+		//get currentAccountID
+		String sql = "SELECT user_id FROM accounts WHERE account_id = ?";
+		int senderUserID = jdbcTemplate.queryForObject(sql, Integer.class, senderAccountID);
 		
+		//get recipientAccountID
+		sql = "SELECT user_id FROM accounts WHERE account_id = ?";
+		int recipientUserID = jdbcTemplate.queryForObject(sql, Integer.class, recipientAccountID);
+		
+		//get balances of sender and recipient
+		BigDecimal currentBalance = accountDAO.getBalance(senderUserID);
+		BigDecimal recipientBalance = accountDAO.getBalance(recipientUserID);
+
+		sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+		jdbcTemplate.update(sql, currentBalance.subtract(amount), senderUserID);
+		//add to recipient
+		sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+		jdbcTemplate.update(sql, recipientBalance.add(amount), recipientUserID);
+		
+		//update transfers
+		sql = "UPDATE transfers SET transfer_status_id = 2 WHERE transfer_id = ?";
+		jdbcTemplate.update(sql, transferID);
+
+
+		SqlRowSet accountToRow = selectTransferByID(transferID);
+		accountToRow.next();
+
+		Transfer newTransfer = mapRowToTransfer(accountToRow);
+		
+		return newTransfer;
+	}
+
+
+	@Override
+	public Transfer updateTransferReject(int transferID) {
+		
+		//update transfers
+		String sql = "UPDATE transfers SET transfer_status_id = 3 WHERE transfer_id = ?";
+		jdbcTemplate.update(sql, transferID);
+		
+
+		SqlRowSet accountToRow = selectTransferByID(transferID);
+		accountToRow.next();
+
+		Transfer newTransfer = mapRowToTransfer(accountToRow);
+		
+		return newTransfer;
+	}
+	
+	
+	
+	private SqlRowSet selectTransferByID(int transferID) {
+		String sql = "SELECT transfer_id, transfer_type_desc, transfer_status_desc, account_from, account_to, amount FROM transfers "
+				+ "JOIN transfer_types ON transfer_types.transfer_type_id = transfers.transfer_type_id "
+				+ "JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
+				+ "WHERE transfer_id = ?";
+		SqlRowSet accountToRow = jdbcTemplate.queryForRowSet(sql, transferID);
+		return accountToRow;
+	}
+	
 	private Transfer mapRowToTransfer(SqlRowSet row) {
 		Transfer transfer = new Transfer();
 		
@@ -178,116 +252,5 @@ public class JDBCTransferDAO implements TransferDAO {
 
 		return transfer;
 	}
-
-
-//		
-//		@Override
-//		public Transfer addTransfer(long senderUserID, long recipientUserID, BigDecimal amount) {
-//			
-//			//make sure sender has enough balance
-//			
-//			BigDecimal currentBalance = jdbcaccountDAO.getBalance(senderUserID);
-//			BigDecimal recipientBalance = jdbcaccountDAO.getBalance(recipientUserID);
-//			int transferStatusID = 0;
-//			
-//			//get currentAccountID
-//			String sql = "SELECT account_id FROM accounts WHERE user_id = ?";
-//			int senderAccountID = jdbcTemplate.queryForObject(sql, Integer.class, senderUserID);
-//			
-//			//get recipientAccountID
-//			sql = "SELECT account_id FROM accounts WHERE user_id = ?";
-//			int recipientAccountID = jdbcTemplate.queryForObject(sql, Integer.class, senderUserID);
-//			
-//			
-////			//no mapping
-////			sql = "select * from transfers " + 
-////					"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
-////					"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id "
-////					+ "Where transfers.transfer_status_id = 2 and transfers.account_from = ?";
-////			
-////			SqlRowSet results = jdbcTemplate.queryForRowSet(sql, senderAccountID);
-//			
-//			
-//			if(currentBalance.doubleValue() >= amount.doubleValue()) {
-//				//subtract from sender
-//				sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
-//				jdbcTemplate.update(sql, currentBalance.subtract(amount), senderUserID);
-//				//add to recipient
-//				sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
-//				jdbcTemplate.update(sql, recipientBalance.add(amount), recipientUserID);
-//				
-//				//insert into transfers
-//				sql = "INSERT INTO transfers VALUES (DEFAULT, 2, 2, ?, ?, ?)";
-//				jdbcTemplate.update(sql, senderAccountID, recipientAccountID, amount);
-//				transferStatusID = 2;
-//			} 
-//
-//			
-//			//transfer status description
-////			sql = "SELECT transfer_status_desc FROM transfer_statuses WHERE transfer_status_id = ?";
-////			String transferStatusDescription = jdbcTemplate.queryForObject(sql, String.class, transferStatusID);
-//			
-//			Transfer newTransfer= new Transfer();
-//			
-////			String sql = "select * from transfers " + 
-////					"JOIN transfer_types ON transfers.transfer_type_id = transfers.transfer_type_id " + 
-////					"JOIN transfer_statuses ON transfers.transfer_status_id = transfer_statuses.transfer_status_id"
-////					+ "Where transfers.transfer_status_id = 2 and transfers.account_from = ?";
-////			
-////			SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountID);
-////			
-//			
-//			// getting account from details to set into transfer object. account id to get user name & user id
-//			String gettingAccountFromDetails = "SELECT account_id, accounts.user_id, username, balance FROM accounts " + 
-//					"JOIN users on users.user_id = accounts.user_id " + 
-//					"WHERE account_id = ?";
-//			SqlRowSet accountFromRow = jdbcTemplate.queryForRowSet(gettingAccountFromDetails, senderAccountID);
-//			accountFromRow.next();
-//			//newTransfer.setAccountFrom(accountFromRow.getInt("user_id"));
-//			newTransfer.setUsername(accountFromRow.getString("username"));
-//			
-//			// getting account to details to set into transfer object. account id to get user name & user id
-//			String gettingAccountToDetails = "SELECT account_id, accounts.user_id, username, balance FROM accounts " + 
-//					"JOIN users on users.user_id = accounts.user_id " + 
-//					"WHERE account_id = ?";
-//			SqlRowSet accountToRow = jdbcTemplate.queryForRowSet(gettingAccountToDetails, recipientAccountID);
-//			accountToRow.next();
-//			newTransfer.setUsername(accountToRow.getString("username"));
-//
-//			accountToRow.next();
-//			newTransfer = mapRowToTransfer(accountToRow);
-//			newTransfer.setAccountFrom(accountToRow.getInt("account_from"));
-//			//newTransfer.setAmount(amount);
-//			newTransfer.setAccountTo(accountToRow.getInt("account_to"));
-//
-//			
-////			results.next();
-////				Transfer newTransfer= new Transfer();
-////				newTransfer = mapRowToTransfer(results);
-////				newTransfer.setAccountFrom(recipientAccountID);
-////				newTransfer.setAmount(amount);
-////				newTransfer.setAccountTo(recipientAccountID);
-////				newTransfer.setAccountFrom(recipientAccountID);
-////				newTransfer.setAccountTo(recipientAccountID);
-//			
-//			return newTransfer;
-//			
-//		}
-//
-//		
-//		
-//>>>>>>> d39e1de991543361a7a33f7b86045588fd8c1123
-		
-		
-		
-		
-		
-		
-		
-//		sql = "SELECT transfer_status_desc FROM transfer_statuses WHERE transfer_status_id = ?";
-//		String transferStatusDescription = jdbcTemplate.queryForObject(sql, String.class, transferStatusID);
-//		return transferStatusDescription;
-
-	
 	
 }
